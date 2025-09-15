@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokeKid Catcher</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ff6ec7'/%3E%3Ctext x='32' y='39' font-size='28' text-anchor='middle' fill='white'%3E★%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <div class="title-group">
+        <div class="logo" aria-hidden="true">★</div>
+        <h1>PokeKid Catcher</h1>
+      </div>
+
+  <div id="scoresOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-secondary btn-close-dialog" aria-label="Fermer">✖</button>
+      </div>
+      <h2>Scores</h2>
+      <div id="scoresList" style="max-height:50vh; overflow:auto; text-align:left"></div>
+      <div class="menu-buttons" style="margin-top:12px">
+        <button id="btnCloseScores" class="btn btn-primary">Fermer</button>
+        <button id="btnClearScores" class="btn btn-secondary">Effacer</button>
+      </div>
+    </div>
+  </div>
+      <div class="session-info">
+        <label for="arenaSelect" class="visually-hidden">Arène</label>
+        <select id="arenaSelect" title="Choisir l'arène">
+          <option value="remoat">Remoat Stadium</option>
+          <option value="shivre">Shivre City</option>
+          <option value="mer">Mer Stadium</option>
+          <option value="theia">Theia Sky Ruins</option>
+          <option value="ruins">Ruins</option>
+          <option value="desert">Desert</option>
+          <option value="jungle">Jungle</option>
+          <option value="auroma">Auroma Park</option>
+        </select>
+        <div class="level-pill" id="levelPill">Niveau 1</div>
+        <div class="objectives" id="objectivesHUD">Captures restantes: —</div>
+        <div class="health" id="healthHUD" title="Vie">
+          <div class="health-bar" id="healthBar" style="width:100%"></div>
+          <span class="health-text" id="healthText">100%</span>
+        </div>
+        <div class="score" id="score">Score: 0</div>
+        <div class="score" id="bestScoreHUD" title="Meilleur score">Meilleur: 0</div>
+        <div class="timer" id="timer">07:00</div>
+        <button id="btnPause" class="btn btn-secondary" title="Mettre en pause / Reprendre">⏸ Pause</button>
+        <span id="pausedBadge" class="paused-badge hidden" title="Jeu en pause">▶</span>
+        <button id="btnHelp" class="btn btn-secondary" title="Aide / Tutoriel">? Aide</button>
+        <button id="btnRestart" class="btn btn-secondary" title="Recommencer la session">↻ Recommencer</button>
+        <button id="btnFullscreen" class="btn btn-secondary" title="Plein écran">⤢ Plein écran</button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="playfield">
+        <canvas id="game" width="960" height="540" aria-label="Zone de jeu" role="img"></canvas>
+        <div class="hint">Déplace-toi avec les flèches. Approche-toi d'un Pokémon pour le capturer !</div>
+      </section>
+
+      <aside class="sidebar">
+        <div class="panel">
+          <h2>Ta Collection</h2>
+          <div class="filters">
+            <label for="sortSelect">Trier par</label>
+            <select id="sortSelect">
+              <option value="count">Nombre</option>
+              <option value="type">Type</option>
+              <option value="name">Nom</option>
+            </select>
+          </div>
+          <ul id="collectionList" class="collection-list" aria-live="polite"></ul>
+        </div>
+
+        
+      </aside>
+    </main>
+  </div>
+
+  <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-secondary btn-close-dialog" aria-label="Fermer">✖</button>
+      </div>
+      <h2>Fin de la session</h2>
+      <p id="statsText">Tu as capturé 0 Pokémon !</p>
+      <button id="btnPlayAgain" class="btn btn-primary">Rejouer</button>
+    </div>
+  </div>
+
+  <div id="menuOverlay" class="overlay" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-secondary btn-close-dialog" aria-label="Fermer">✖</button>
+      </div>
+      <h2>Bienvenue dans PokeKid Catcher</h2>
+      <p>Choisis un niveau ou reprends ta progression.</p>
+      <div style="display:flex;align-items:center;gap:8px;justify-content:center;margin:8px 0 12px;">
+        <label for="playerNameInput" style="font-weight:700;">Ton prénom</label>
+        <input id="playerNameInput" type="text" placeholder="ex: Sam" style="border:2px solid #cad5e1;padding:6px 8px;border-radius:8px;font-weight:600;" />
+      </div>
+      <div class="menu-buttons">
+        <button id="btnContinue" class="btn btn-primary">Continuer</button>
+        <div class="level-grid">
+          <button id="btnLevel1" class="btn">Niveau 1</button>
+          <button id="btnLevel2" class="btn" disabled>Niveau 2</button>
+          <button id="btnLevel3" class="btn" disabled>Niveau 3</button>
+          <button id="btnLevel4" class="btn" disabled>Niveau 4</button>
+          <button id="btnLevel5" class="btn" disabled>Niveau 5</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <div id="levelOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-secondary btn-close-dialog" aria-label="Fermer">✖</button>
+      </div>
+      <h2 id="levelResultTitle">Niveau réussi !</h2>
+      <p id="levelResultText">Bravo ! Tu as débloqué le niveau suivant.</p>
+      <div class="menu-buttons">
+        <button id="btnNextLevel" class="btn btn-primary">Niveau suivant</button>
+        <button id="btnBackToMenu" class="btn btn-secondary">Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay d’introduction de niveau -->
+  <div id="levelIntroOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-secondary btn-close-dialog" aria-label="Fermer">✖</button>
+      </div>
+      <h2 id="levelIntroTitle">Niveau 1</h2>
+      <div id="levelIntroContent" class="level-intro">
+        <!-- rempli dynamiquement: temps, objectifs, sprites faciles/durs -->
+      </div>
+      <div class="menu-buttons">
+        <button id="btnStartLevelNow" class="btn btn-primary">Démarrer !</button>
+        <button id="btnBackToMenuFromIntro" class="btn btn-secondary">Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tutorialOverlay" class="overlay hidden" role="dialog" aria-modal="true">
+    <div class="dialog">
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn btn-secondary btn-close-dialog" aria-label="Fermer">✖</button>
+      </div>
+      <h2>Comment jouer</h2>
+      <ul style="text-align:left; line-height:1.5; padding-left: 18px;">
+        <li>Utilise les <strong>flèches</strong> pour te déplacer.</li>
+        <li>Approche-toi d’un <strong>Pokémon</strong> pour le capturer automatiquement.</li>
+        <li>Les Pokémon disparaissent après <strong>3s</strong>.</li>
+        <li>Évite les pièges <strong>⚠</strong> ou tu perdras des points.</li>
+        <li>Objectif d’un niveau: capture le nombre indiqué au début du niveau.</li>
+      </ul>
+      <button id="btnStartTutorial" class="btn btn-primary">Commencer</button>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
